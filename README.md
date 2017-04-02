@@ -14,15 +14,17 @@ Add the following dependency to your project.clj file:
 
 This simple code will connect to an EZ-Robot and move the servo on 0:
 
-```(ns hello-robot
-     (:require [ezrobot-clj.core :as ez]))
+```
+(ns hello-robot
+  (:require [ezrobot-clj.core :as ez]))
 
-   (def robot (ez/connect-async "your robot ip" 23))
+ (def robot (ez/connect-async "your robot ip" 23))
 
-  (println (ez/handshake robot))
-  (println (ez/get-voltage robot))
+(println (ez/handshake robot))
+(println (ez/get-voltage robot))
 
-  (ez/move-servo! robot 0 20 20)```
+(ez/move-servo! robot 0 20 20)
+```
 
 If you hear grinding noises or smell smoke, this may be helpful:
 
