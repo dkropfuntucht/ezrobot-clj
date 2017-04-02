@@ -2,6 +2,7 @@
   (:require [clojure.core.async :as async])
   (:import [java.net Socket]))
 
+;;TODO: move low-level socket reads and writes to network ns
 ;; -- Bare Socket Routines
 (defn connect
   [address port]
@@ -38,7 +39,18 @@
         (if-let [byte (raw-read socket)]
           (async/>! in-channel byte))))
     (assoc socket :send-channel out-channel
-                  :read-channel in-channel)))
+           :read-channel in-channel)))
+
+;;TODO: find a better name
+(defn connect-async-with-map
+  [address port config-map]
+  (let [robot-struct (assoc (connect-async address port)
+                            :robot-state (atom config-map))]
+    robot-struct))
+;;TODO: create a bunch of commands that operate by updating the state and a watch
+;;  that changes the state based on the watch
+
+;; - some commands
 
 (defn put-robot!
   "put a vector of bytes on the robot's outgoing channel"
@@ -92,6 +104,57 @@
   (let [a (get-robot! robot)
         b (get-robot! robot)]
     (* 0.003862434 (+ a (bit-shift-left b 8)))))
+
+;; - servo map
+(def robot-map
+  {:neck-rotation       {:index    0
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed    30}
+   :neck-pitch          {:index    1
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed 30}
+   :shoulder-rotation-r {:index    2
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed 30}
+   :shoulder-rotation-l {:index    3
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed 30}
+   :shoulder-pitch-l    {:index    4
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed 30}
+   :elbow-pitch-l       {:index    5
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed 30}
+   :gripper-pos-l       {:index    6
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed 30}
+   :shoulder-pitch-r    {:index    7
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed 30}
+   :elbow-pitch-r       {:index    8
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed 30}
+   :gripper-pos-r       {:index    9
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed 30}
+   :hip-pitch-l         {:index   12
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed 30}
+   :knee-pitch-l        {:index   13
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed 30}
+   :ankle-pitch-l       {:index   14
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed 30}
+   :hip-pitch-r         {:index   16
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed 30}
+   :knee-pitch-r        {:index   17
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed 30}
+   :ankle-pitch-r       {:index   18
+                         :position {:initial 0 :min 0 :max 0 :current 0}
+                         :speed 30}})
 
 ;;TODO: explore the position of every servo and find good defaults
 ;;TODO: create a map of the machine state and put it in an atom
